@@ -54,6 +54,16 @@ export default class SongCard extends React.Component {
         this.props.moveCallback(sourceId, targetId);
     }
 
+    handleEditSong = (event) => {
+        event.stopPropagation();
+        this.props.onEditSong(this.props.song);
+    }
+
+    handleDeleteSong = (event) => {
+        event.stopPropagation();
+        this.props.onDeleteSong(this.props.song);
+    }
+
     getItemNum = () => {
         return this.props.id.substring("song-card-".length);
     }
@@ -61,7 +71,6 @@ export default class SongCard extends React.Component {
     render() {
         const { song } = this.props;
         let num = this.getItemNum();
-        console.log("num: " + num);
         let itemClass = "song-card";
         if (this.state.draggedTo) {
             itemClass = "song-card-dragged-to";
@@ -75,9 +84,20 @@ export default class SongCard extends React.Component {
                 onDragEnter={this.handleDragEnter}
                 onDragLeave={this.handleDragLeave}
                 onDrop={this.handleDrop}
+                onDoubleClick={this.handleEditSong}
                 draggable="true"
             >
-                {song.title} by {song.artist}
+                <span className="song-card-number">{num}.</span>
+                <a className="song-card-title" href={"https://www.youtube.com/watch?v=" + song.youTubeId}>{song.title}</a>
+                <span className="song-card-by"> by </span>
+                <span className="song-card-artist">{song.artist}</span>
+                <span className="song-card-year">({song.year})</span>
+                <input 
+                    type="button" 
+                    className="song-card-button" 
+                    value="✕" 
+                    onClick={this.handleDeleteSong}
+                />
             </div>
         )
     }

@@ -1,16 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 :root {
   /* 
         FIRST WE'LL DEFINE OUR SWATCHES, i.e. THE COMPLEMENTARY
         COLORS THAT WE'LL USE TOGETHER IN MULTIPLE PLACES THAT
         TOGETHER WILL MAKE UP A GIVEN THEME
     */
-  --swatch-foundation: #eeeedd; 
-  --swatch-primary: #e6e6e6; 
-  --swatch-complement: #e1e4cb;
-  --swatch-contrast: #111111; 
-  --swatch-accent: #669966; 
-  --swatch-status: #123456;
-  --bounceEasing: cubic-bezier(0.51, 0.92, 0.24, 1.15);
+    --swatch-foundation: #eeeedd; 
+    --swatch-primary: #e6e6e6; 
+    --swatch-complement: #e1e4cb;
+    --swatch-contrast: #111111; 
+    --swatch-accent: #669966; 
+    --swatch-status: #123456;
+    --swatch-link-emphasis: #b88320;
+    --swatch-link-contrast:lightgreen;
+    --swatch-link-hover:pink;
+    --switch-link-active: magenta;
+    --bounceEasing: cubic-bezier(0.51, 0.92, 0.24, 1.15);
 }
 
 body {
@@ -19,12 +25,12 @@ body {
 
 #root {
   background-color: var(--swatch-primary);
-  font-family: serif;
+  font-family: 'Montserrat', sans-serif;
   position: absolute;
-  width: 80%;
-  left: 10%;
-  height:90%;
   top: 5%;
+  width: 90%;
+  left: 5%;
+  height: 90%;
   display:grid;
   grid-template-columns: 30% 70%;
   grid-template-rows: 10% 10% 70% 10%;
@@ -47,7 +53,7 @@ body {
   background-image: linear-gradient(to bottom,         
   #b8b808, #636723);
   color: white;
-  font-size: 54pt;
+  font-size: 32pt;
   border-color: black;
   border-width: 2px;
   border-style: solid;
@@ -58,7 +64,7 @@ body {
   grid-column: 1 / 2;
   grid-row: 2 / 3;
   text-align:center;
-  font-size: 36pt;
+  font-size: 20pt;
   font-weight: bold;
   display:flex;
   flex-direction: row;
@@ -100,7 +106,7 @@ body {
   background-color: #FFA07A;
   color: black;
   text-align: center;
-  font-size: 38pt;
+  font-size: 24pt;
   padding-top: 4px;
 }
 
@@ -151,8 +157,36 @@ body {
 .song-card, .song-card-dragged-to { 
   display:flex;
   align-items: center;
-  font-size: 24pt;
+  justify-content: space-between;
+  font-size: 24px;
   height:20%;
+  background-color: var(--swatch-complement);
+  margin: 10px;
+  padding: 10px;
+  border-radius: 125px;
+}
+
+.song-card:hover {
+  background-color: var(--swatch-contrast);
+  color: white;
+}
+
+.song-card-title {
+  color: var(--swatch-link-emphasis);
+  text-decoration: none;
+}
+
+.song-card-title:hover {
+  color: var(--swatch-link-emphasis);
+  text-decoration: none;
+}
+
+.song-card:hover .song-card-title {
+  color: var(--swatch-link-contrast);
+}
+
+.song-card-artist {
+  color: red;
 }
 
 input {
@@ -186,7 +220,7 @@ input {
 
 .modal-root {
   position: relative;
-  max-width: 1200vw;
+  max-width: 80vw;
   max-height: 600vh;
   overflow: visible;
   display: flex;
