@@ -47,6 +47,30 @@ class App extends React.Component {
             return keyPair1.name.localeCompare(keyPair2.name);
         });
     }
+    // FUNCTION TO ADD A NEW SONG TO THE CURRENT LIST
+    addNewSong = () => {
+        if (!this.state.currentList) return;
+        
+        const newSong = {
+            title: "Untitled",
+            artist: "???",
+            youTubeId: "dQw4w9WgXcQ", 
+            year: "2000"
+        };
+        
+        const updatedList = {
+            ...this.state.currentList,
+            songs: [...this.state.currentList.songs, newSong]
+        };
+        
+        this.setState({
+            currentList: updatedList,
+            songMarkedForEdit: newSong,
+        }, () => {
+            this.db.mutationUpdateList(updatedList);
+        });
+    }
+
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
@@ -400,6 +424,7 @@ class App extends React.Component {
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
                     duplicateListCallback={this.duplicateList}
+                    addSongCallback={this.addNewSong}
                 />
                 <EditToolbar
                     canAddSong={canAddSong}
@@ -409,6 +434,7 @@ class App extends React.Component {
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
+                    addSongCallback={this.addNewSong}
                 />
                 <SongCards
                     currentList={this.state.currentList}
