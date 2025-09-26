@@ -35,10 +35,10 @@ class App extends React.Component {
 
         // SETUP THE INITIAL STATE
         this.state = {
-            listKeyPairMarkedForDeletion : null,
-            currentList : null,
-            sessionData : loadedSessionData,
-            songMarkedForEdit : null
+            listKeyPairMarkedForDeletion: null,
+            currentList: null,
+            sessionData: loadedSessionData,
+            songMarkedForEdit: null
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -73,7 +73,7 @@ class App extends React.Component {
         // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
         // SHOULD BE DONE VIA ITS CALLBACK
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
             currentList: newList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
@@ -110,7 +110,7 @@ class App extends React.Component {
 
         // AND FROM OUR APP STATE
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : null,
+            listKeyPairMarkedForDeletion: null,
             currentList: newCurrentList,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
@@ -176,7 +176,7 @@ class App extends React.Component {
         }
 
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : null,
+            listKeyPairMarkedForDeletion: null,
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
@@ -195,7 +195,7 @@ class App extends React.Component {
     loadList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
             currentList: newCurrentList,
             sessionData: this.state.sessionData
         }), () => {
@@ -207,7 +207,7 @@ class App extends React.Component {
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
             currentList: null,
             sessionData: this.state.sessionData
         }), () => {
@@ -218,9 +218,9 @@ class App extends React.Component {
     }
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            currentList : list,
-            sessionData : this.state.sessionData
+            listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+            currentList: list,
+            sessionData: this.state.sessionData
         }), () => {
             // UPDATING THE LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
@@ -281,18 +281,18 @@ class App extends React.Component {
     // THIS FUNCTION HANDLES DELETING A SONG FROM THE CURRENT LIST
     deleteSong = (songToDelete) => {
         if (!this.state.currentList) return;
-        
+
         const updatedList = { ...this.state.currentList };
         const songIndex = updatedList.songs.findIndex(
-            song => song.title === songToDelete.title && 
-                   song.artist === songToDelete.artist &&
-                   song.youTubeId === songToDelete.youTubeId &&
-                   song.year === songToDelete.year
+            song => song.title === songToDelete.title &&
+                song.artist === songToDelete.artist &&
+                song.youTubeId === songToDelete.youTubeId &&
+                song.year === songToDelete.year
         );
-        
+
         if (songIndex !== -1) {
             updatedList.songs.splice(songIndex, 1);
-            
+
             this.setState(prevState => ({
                 currentList: updatedList
             }), () => {
@@ -301,10 +301,35 @@ class App extends React.Component {
             });
         }
     }
+
+    // THIS FUNCTION HANDLES DUPLICATING A SONG IN THE CURRENT LIST
+    duplicateSong = (songToDuplicate) => {
+        if (!this.state.currentList) return;
+
+        const updatedList = { ...this.state.currentList };
+        const songIndex = updatedList.songs.findIndex(
+            song => song.title === songToDuplicate.title &&
+                song.artist === songToDuplicate.artist &&
+                song.youTubeId === songToDuplicate.youTubeId &&
+                song.year === songToDuplicate.year
+        );
+
+        const duplicatedSong = JSON.parse(JSON.stringify(songToDuplicate));
+        duplicatedSong.title = `${duplicatedSong.title} (Copy)`;
+        updatedList.songs.splice(songIndex + 1, 0, duplicatedSong); // insert it into our list
+
+        this.setState({
+            currentList: updatedList
+        }, () => {
+            this.db.mutationUpdateList(updatedList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
+        });
+
+    }
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({
             currentList: prevState.currentList,
-            listKeyPairMarkedForDeletion : keyPair,
+            listKeyPairMarkedForDeletion: keyPair,
             sessionData: prevState.sessionData
         }), () => {
             this.showDeleteListModal();
@@ -316,11 +341,10 @@ class App extends React.Component {
         newList.key = this.state.sessionData.nextKey;
         newList.name = `${list.name} (Copy)`;
         const newKeyNamePair = { key: newList.key, name: newList.name };
-        
+
         this.setState(prevState => {
             const updatedKeyNamePairs = [...prevState.sessionData.keyNamePairs, newKeyNamePair];
-            this.sortKeyNamePairsByName(updatedKeyNamePairs);
-            
+
             return {
                 currentList: prevState.currentList,
                 sessionData: {
@@ -381,7 +405,7 @@ class App extends React.Component {
                     canAddSong={canAddSong}
                     canUndo={canUndo}
                     canRedo={canRedo}
-                    canClose={canClose} 
+                    canClose={canClose}
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
@@ -391,8 +415,9 @@ class App extends React.Component {
                     moveSongCallback={this.addMoveSongTransaction}
                     onEditSong={this.showEditSongModal}
                     onDeleteSong={this.deleteSong}
+                    onDuplicateSong={this.duplicateSong}
                 />
-                <Statusbar 
+                <Statusbar
                     currentList={this.state.currentList} />
                 <DeleteListModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
