@@ -148,6 +148,7 @@ class App extends React.Component {
                 currentList: updatedList
             }, () => {
                 this.db.mutationUpdateList(updatedList); //save locally
+                this.db.mutationUpdateSessionData(this.state.sessionData);
             });
         }
     }
@@ -295,8 +296,8 @@ class App extends React.Component {
             this.setState(prevState => ({
                 currentList: updatedList
             }), () => {
-                // Update the list in the database after state is updated
                 this.db.mutationUpdateList(updatedList);
+                this.db.mutationUpdateSessionData(this.state.sessionData);
             });
         }
     }
@@ -306,8 +307,31 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : keyPair,
             sessionData: prevState.sessionData
         }), () => {
-            // PROMPT THE USER
             this.showDeleteListModal();
+        });
+    }
+    duplicateList = (keyPair) => {
+        const list = this.db.queryGetList(keyPair.key);
+        const newList = JSON.parse(JSON.stringify(list)); //deep copy
+        newList.key = this.state.sessionData.nextKey;
+        newList.name = `${list.name} (Copy)`;
+        const newKeyNamePair = { key: newList.key, name: newList.name };
+        
+        this.setState(prevState => {
+            const updatedKeyNamePairs = [...prevState.sessionData.keyNamePairs, newKeyNamePair];
+            this.sortKeyNamePairsByName(updatedKeyNamePairs);
+            
+            return {
+                currentList: prevState.currentList,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey + 1,
+                    counter: prevState.sessionData.counter + 1,
+                    keyNamePairs: updatedKeyNamePairs
+                }
+            };
+        }, () => {
+            this.db.mutationCreateList(newList);
+            this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
@@ -351,6 +375,7 @@ class App extends React.Component {
                     deleteListCallback={this.markListForDeletion}
                     loadListCallback={this.loadList}
                     renameListCallback={this.renameList}
+                    duplicateListCallback={this.duplicateList}
                 />
                 <EditToolbar
                     canAddSong={canAddSong}
