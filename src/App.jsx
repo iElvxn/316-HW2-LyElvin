@@ -53,6 +53,15 @@ class App extends React.Component {
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
+
+    // Helper method to save current state to local storage
+    saveToLocalStorage = () => {
+        const { currentList, sessionData } = this.state;
+        if (currentList) {
+            this.db.mutationUpdateList(currentList);
+        }
+        this.db.mutationUpdateSessionData(sessionData);
+    }
     
     handleKeyDown = (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -89,6 +98,7 @@ class App extends React.Component {
         
         const transaction = new AddSong_Transaction(this, newSong);
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
 
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
@@ -128,9 +138,8 @@ class App extends React.Component {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationCreateList(newList);
-
-            // SO IS STORING OUR SESSION DATA
-            this.db.mutationUpdateSessionData(this.state.sessionData);
+            // Save to local storage
+            this.saveToLocalStorage();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF DELETING A LIST.
@@ -165,9 +174,8 @@ class App extends React.Component {
             // DELETING THE LIST FROM PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationDeleteList(key);
-
-            // SO IS STORING OUR SESSION DATA
-            this.db.mutationUpdateSessionData(this.state.sessionData);
+            // Save to local storage
+            this.saveToLocalStorage();
         });
     }
     deleteMarkedList = () => {
@@ -219,7 +227,7 @@ class App extends React.Component {
             let list = this.db.queryGetList(key);
             list.name = newName;
             this.db.mutationUpdateList(list);
-            this.db.mutationUpdateSessionData(this.state.sessionData);
+            this.saveToLocalStorage();
         });
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
@@ -245,6 +253,7 @@ class App extends React.Component {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
             // THE TRANSACTION STACK IS CLEARED
             this.tps.clearAllTransactions();
+            this.saveToLocalStorage();
         });
     }
     setStateWithUpdatedList(list) {
@@ -289,10 +298,12 @@ class App extends React.Component {
     addMoveSongTransaction = (start, end) => {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
     addAddSongTransaction = (song) => {
         let transaction = new AddSong_Transaction(this, song);
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
     addEditSongTransaction = (songIndex, oldSong, newSong) => {
         let transaction = new EditSong_Transaction(
@@ -302,31 +313,32 @@ class App extends React.Component {
             { ...newSong }   
         );
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
     addDeleteSongTransaction = (songIndex) => {
         let transaction = new DeleteSong_Transaction(this, songIndex);
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
     addDuplicateSongTransaction = (song) => {
         let transaction = new DuplicateSong_Transaction(this, song);
         this.tps.processTransaction(transaction);
+        this.saveToLocalStorage();
     }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
             this.tps.undoTransaction();
-
-            // MAKE SURE THE LIST GETS PERMANENTLY UPDATED
-            this.db.mutationUpdateList(this.state.currentList);
+            // Save changes to local storage
+            this.saveToLocalStorage();
         }
     }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING A REDO
     redo = () => {
         if (this.tps.hasTransactionToDo()) {
             this.tps.doTransaction();
-
-            // MAKE SURE THE LIST GETS PERMANENTLY UPDATED
-            this.db.mutationUpdateList(this.state.currentList);
+            // Save changes to local storage
+            this.saveToLocalStorage();
         }
     }
 
