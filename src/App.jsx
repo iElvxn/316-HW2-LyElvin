@@ -37,8 +37,8 @@ class App extends React.Component {
         this.state = {
             listKeyPairMarkedForDeletion : null,
             currentList : null,
-            sessionData : loadedSessionData
-            song
+            sessionData : loadedSessionData,
+            songMarkedForEdit : null
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -129,6 +129,27 @@ class App extends React.Component {
     deleteMarkedList = () => {
         this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
         this.hideDeleteListModal();
+    }
+    editMarkedSong = (updatedSong) => {
+        console.log("Updated Song: ", updatedSong);
+        this.hideEditSongModal();
+        const updatedList = { ...this.state.currentList };
+        const songIndex = updatedList.songs.findIndex(song => song.title === this.state.songMarkedForEdit.title);
+        console.log(songIndex);
+        if (songIndex !== -1) {
+            updatedList.songs[songIndex] = {
+                ...updatedList.songs[songIndex],
+                title: updatedSong.title,
+                artist: updatedSong.artist,
+                youTubeId: updatedSong.youTubeId,
+                year: updatedSong.year
+            };
+            this.setState({
+                currentList: updatedList
+            }, () => {
+                this.db.mutationUpdateList(updatedList); //save locally
+            });
+        }
     }
     // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
     deleteCurrentList = () => {
@@ -271,9 +292,22 @@ class App extends React.Component {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
     }
+    showEditSongModal = (song) => {
+        console.log(song)
+        this.setState({
+            songMarkedForEdit: song
+        }, () => {
+            const modal = document.getElementById("edit-song-modal");
+            if (modal) modal.classList.add("is-visible");
+        });
+    }
     // THIS FUNCTION IS FOR HIDING THE MODAL
     hideDeleteListModal() {
         let modal = document.getElementById("delete-list-modal");
+        modal.classList.remove("is-visible");
+    }
+    hideEditSongModal() {
+        let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
     }
     render() {
@@ -305,7 +339,8 @@ class App extends React.Component {
                 />
                 <SongCards
                     currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction} />
+                    moveSongCallback={this.addMoveSongTransaction}
+                    onEditSong={this.showEditSongModal} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
@@ -314,7 +349,7 @@ class App extends React.Component {
                     deleteListCallback={this.deleteMarkedList}
                 />
                 <EditSongModal
-                    song={this.state.songMarkedForDeletion}
+                    song={this.state.songMarkedForEdit}
                     hideEditSongModalCallback={this.hideEditSongModal}
                     editSongCallback={this.editMarkedSong}
                 />

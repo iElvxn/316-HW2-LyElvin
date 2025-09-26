@@ -220,6 +220,7 @@ input {
 
 .modal-root {
   position: relative;
+  min-width: 30vw;
   max-width: 80vw;
   max-height: 600vh;
   overflow: visible;
@@ -245,11 +246,11 @@ input {
 }
 
 .modal-center {
-  display: grid;
-  grid-template-columns: 30% 65%;
-  grid-template-rows: 33% 33% 33%;
-  gap: 10px 20px;
-  font-size: 48pt;
+    display: grid;
+    grid-template-columns: 30% 65%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+    gap: 10px 20px;
+    font-size: 48pt;
 }
 
 span {
@@ -271,21 +272,21 @@ span {
 }
 
 .modal-prompt {  
-  font-size:28pt;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  font-size:20pt;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .modal-textfield {
-  font-size:28pt;
+  font-size:20pt;
 }
 
 .modal-button {
   font-size: 20pt;
-}
-
-#title-prompt {
-  grid-column: 1 / 2;
-  grid-row: 1 / 2;
 }
 
 .modal-button {
@@ -295,6 +296,9 @@ span {
 .modal p + p {
   margin-top: 1rem;
 }
+
+
+
 
 /* ANIMATIONS
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
