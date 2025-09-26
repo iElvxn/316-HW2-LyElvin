@@ -45,6 +45,31 @@ class App extends React.Component {
             songMarkedForEdit: null
         }
     }
+    
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+    
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+    
+    handleKeyDown = (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+            console.log("hey")
+            e.preventDefault();
+            if (this.tps.hasTransactionToUndo()) {
+                this.undo();
+            }
+        } 
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+            e.preventDefault();
+            if (this.tps.hasTransactionToDo()) {
+                this.redo();
+            }
+        }
+    }
+
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
             // GET THE LISTS
