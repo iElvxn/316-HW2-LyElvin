@@ -276,6 +276,30 @@ class App extends React.Component {
             this.db.mutationUpdateList(this.state.currentList);
         }
     }
+
+    // THIS FUNCTION HANDLES DELETING A SONG FROM THE CURRENT LIST
+    deleteSong = (songToDelete) => {
+        if (!this.state.currentList) return;
+        
+        const updatedList = { ...this.state.currentList };
+        const songIndex = updatedList.songs.findIndex(
+            song => song.title === songToDelete.title && 
+                   song.artist === songToDelete.artist &&
+                   song.youTubeId === songToDelete.youTubeId &&
+                   song.year === songToDelete.year
+        );
+        
+        if (songIndex !== -1) {
+            updatedList.songs.splice(songIndex, 1);
+            
+            this.setState(prevState => ({
+                currentList: updatedList
+            }), () => {
+                // Update the list in the database after state is updated
+                this.db.mutationUpdateList(updatedList);
+            });
+        }
+    }
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({
             currentList: prevState.currentList,
@@ -340,7 +364,9 @@ class App extends React.Component {
                 <SongCards
                     currentList={this.state.currentList}
                     moveSongCallback={this.addMoveSongTransaction}
-                    onEditSong={this.showEditSongModal} />
+                    onEditSong={this.showEditSongModal}
+                    onDeleteSong={this.deleteSong}
+                />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteListModal
