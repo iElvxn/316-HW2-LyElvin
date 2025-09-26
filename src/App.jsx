@@ -152,23 +152,10 @@ class App extends React.Component {
     editMarkedSong = (updatedSong) => {
         console.log("Updated Song: ", updatedSong);
         this.hideEditSongModal();
-        const updatedList = { ...this.state.currentList };
-        const songIndex = updatedList.songs.findIndex(song => song.title === this.state.songMarkedForEdit.title);
+        const songIndex = this.state.currentList.songs.findIndex(song => song.title === this.state.songMarkedForEdit.title);
         console.log(songIndex);
         if (songIndex !== -1) {
-            updatedList.songs[songIndex] = {
-                ...updatedList.songs[songIndex],
-                title: updatedSong.title,
-                artist: updatedSong.artist,
-                youTubeId: updatedSong.youTubeId,
-                year: updatedSong.year
-            };
-            this.setState({
-                currentList: updatedList
-            }, () => {
-                this.db.mutationUpdateList(updatedList); //save locally
-                this.db.mutationUpdateSessionData(this.state.sessionData);
-            });
+            this.addEditSongTransaction(songIndex, this.state.songMarkedForEdit, updatedSong);
         }
     }
     // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
@@ -282,14 +269,19 @@ class App extends React.Component {
         let transaction = new AddSong_Transaction(this, song);
         this.tps.processTransaction(transaction);
     }
-    // addEditSongTransaction = (song) => {
-    //     let transaction = new EditSong_Transaction(this, song);
-    //     this.tps.processTransaction(transaction);
-    // }
-    // addDeleteSongTransaction = (song) => {
-    //     let transaction = new DeleteSong_Transaction(this, song);
-    //     this.tps.processTransaction(transaction);
-    // }
+    addEditSongTransaction = (songIndex, oldSong, newSong) => {
+        let transaction = new EditSong_Transaction(
+            this, 
+            songIndex,
+            { ...oldSong },
+            { ...newSong }   
+        );
+        this.tps.processTransaction(transaction);
+    }
+    addDeleteSongTransaction = (songIndex) => {
+        let transaction = new DeleteSong_Transaction(this, songIndex);
+        this.tps.processTransaction(transaction);
+    }
     // addDuplicateSongTransaction = (song) => {
     //     let transaction = new DuplicateSong_Transaction(this, song);
     //     this.tps.processTransaction(transaction);
@@ -317,8 +309,7 @@ class App extends React.Component {
     deleteSong = (songToDelete) => {
         if (!this.state.currentList) return;
 
-        const updatedList = { ...this.state.currentList };
-        const songIndex = updatedList.songs.findIndex(
+        const songIndex = this.state.currentList.songs.findIndex(
             song => song.title === songToDelete.title &&
                 song.artist === songToDelete.artist &&
                 song.youTubeId === songToDelete.youTubeId &&
@@ -326,14 +317,7 @@ class App extends React.Component {
         );
 
         if (songIndex !== -1) {
-            updatedList.songs.splice(songIndex, 1);
-
-            this.setState(prevState => ({
-                currentList: updatedList
-            }), () => {
-                this.db.mutationUpdateList(updatedList);
-                this.db.mutationUpdateSessionData(this.state.sessionData);
-            });
+            this.addDeleteSongTransaction(songIndex);
         }
     }
 
