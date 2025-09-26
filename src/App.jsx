@@ -7,6 +7,10 @@ import { jsTPS } from 'jstps';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import AddSong_Transaction from './transactions/AddSong_Transaction.js';
+import EditSong_Transaction from './transactions/EditSong_Transaction.js';
+import DeleteSong_Transaction from './transactions/DeleteSong_Transaction.js';
+import DuplicateSong_Transaction from './transactions/DuplicateSong_Transaction.js';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.jsx';
@@ -58,17 +62,8 @@ class App extends React.Component {
             year: "2000"
         };
         
-        const updatedList = {
-            ...this.state.currentList,
-            songs: [...this.state.currentList.songs, newSong]
-        };
-        
-        this.setState({
-            currentList: updatedList,
-            songMarkedForEdit: newSong,
-        }, () => {
-            this.db.mutationUpdateList(updatedList);
-        });
+        const transaction = new AddSong_Transaction(this, newSong);
+        this.tps.processTransaction(transaction);
     }
 
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
@@ -283,6 +278,22 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.processTransaction(transaction);
     }
+    addAddSongTransaction = (song) => {
+        let transaction = new AddSong_Transaction(this, song);
+        this.tps.processTransaction(transaction);
+    }
+    // addEditSongTransaction = (song) => {
+    //     let transaction = new EditSong_Transaction(this, song);
+    //     this.tps.processTransaction(transaction);
+    // }
+    // addDeleteSongTransaction = (song) => {
+    //     let transaction = new DeleteSong_Transaction(this, song);
+    //     this.tps.processTransaction(transaction);
+    // }
+    // addDuplicateSongTransaction = (song) => {
+    //     let transaction = new DuplicateSong_Transaction(this, song);
+    //     this.tps.processTransaction(transaction);
+    // }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
