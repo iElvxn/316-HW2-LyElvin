@@ -282,10 +282,10 @@ class App extends React.Component {
         let transaction = new DeleteSong_Transaction(this, songIndex);
         this.tps.processTransaction(transaction);
     }
-    // addDuplicateSongTransaction = (song) => {
-    //     let transaction = new DuplicateSong_Transaction(this, song);
-    //     this.tps.processTransaction(transaction);
-    // }
+    addDuplicateSongTransaction = (song) => {
+        let transaction = new DuplicateSong_Transaction(this, song);
+        this.tps.processTransaction(transaction);
+    }
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -325,25 +325,14 @@ class App extends React.Component {
     duplicateSong = (songToDuplicate) => {
         if (!this.state.currentList) return;
 
-        const updatedList = { ...this.state.currentList };
-        const songIndex = updatedList.songs.findIndex(
+        const songIndex = this.state.currentList.songs.findIndex(
             song => song.title === songToDuplicate.title &&
                 song.artist === songToDuplicate.artist &&
                 song.youTubeId === songToDuplicate.youTubeId &&
                 song.year === songToDuplicate.year
         );
 
-        const duplicatedSong = JSON.parse(JSON.stringify(songToDuplicate));
-        duplicatedSong.title = `${duplicatedSong.title} (Copy)`;
-        updatedList.songs.splice(songIndex + 1, 0, duplicatedSong); // insert it into our list
-
-        this.setState({
-            currentList: updatedList
-        }, () => {
-            this.db.mutationUpdateList(updatedList);
-            this.db.mutationUpdateSessionData(this.state.sessionData);
-        });
-
+        this.addDuplicateSongTransaction(songIndex);
     }
     markListForDeletion = (keyPair) => {
         this.setState(prevState => ({
