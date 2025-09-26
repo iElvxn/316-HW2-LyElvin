@@ -422,16 +422,19 @@ class App extends React.Component {
     hideDeleteListModal() {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
+        
     }
-    hideEditSongModal() {
+    hideEditSongModal = () => {
         let modal = document.getElementById("edit-song-modal");
-        modal.classList.remove("is-visible");
+        if (modal) modal.classList.remove("is-visible");
+        this.setState({ songMarkedForEdit: null });
     }
     render() {
         let canAddSong = this.state.currentList !== null;
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToDo();
         let canClose = this.state.currentList !== null;
+        let editOpen = this.state.songMarkedForEdit !== null;
         return (
             <div id="root">
                 <Banner />
@@ -452,6 +455,7 @@ class App extends React.Component {
                     canUndo={canUndo}
                     canRedo={canRedo}
                     canClose={canClose}
+                    editOpen={editOpen}
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
